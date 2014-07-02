@@ -1,6 +1,9 @@
 =============================
-Horizon (OpenStack Dashboard)
+Horizon Swift Standalone (OpenStack Dashboard)
 =============================
+
+Horizon-Swift-Standalone is customized version of openstack horizon to integrate with Swift without the mandatory component Nova.
+This solution can be used to provide Storage as a Service with Openstack Swift
 
 Horizon is a Django-based project aimed at providing a complete OpenStack
 Dashboard along with an extensible framework for building new dashboards

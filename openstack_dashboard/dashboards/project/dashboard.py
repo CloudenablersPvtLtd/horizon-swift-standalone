@@ -63,12 +63,10 @@ class Project(horizon.Dashboard):
     name = _("Project")
     slug = "project"
     panels = (
-        BasePanels,
-        NetworkPanels,
-        ObjectStorePanels,
-        OrchestrationPanels,
-        DatabasePanels,)
-    default_panel = 'overview'
+        ObjectStorePanels,)
+    default_panel = 'containers'
+
+
     supports_tenants = True
 
 

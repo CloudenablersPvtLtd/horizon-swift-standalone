@@ -347,16 +347,14 @@ class CreateProject(workflows.Workflow):
     failure_message = _('Unable to create project "%s".')
     success_url = "horizon:admin:projects:index"
     default_steps = (CreateProjectInfo,
-                     UpdateProjectMembers,
-                     UpdateProjectQuota)
+                     UpdateProjectMembers)
 
     def __init__(self, request=None, context_seed=None, entry_point=None,
                  *args, **kwargs):
         if PROJECT_GROUP_ENABLED:
             self.default_steps = (CreateProjectInfo,
                                   UpdateProjectMembers,
-                                  UpdateProjectGroups,
-                                  UpdateProjectQuota)
+                                  UpdateProjectGroups)
         super(CreateProject, self).__init__(request=request,
                                             context_seed=context_seed,
                                             entry_point=entry_point,
@@ -444,28 +442,6 @@ class CreateProject(workflows.Workflow):
                                              'and update project quotas.'
                                              % groups_to_add))
 
-        # Update the project quota.
-        nova_data = dict(
-            [(key, data[key]) for key in quotas.NOVA_QUOTA_FIELDS])
-        try:
-            nova.tenant_quota_update(request, project_id, **nova_data)
-
-            if base.is_service_enabled(request, 'volume'):
-                cinder_data = dict([(key, data[key]) for key in
-                                    quotas.CINDER_QUOTA_FIELDS])
-                cinder.tenant_quota_update(request,
-                                           project_id,
-                                           **cinder_data)
-
-            if api.base.is_service_enabled(request, 'network') and \
-                    api.neutron.is_quotas_extension_supported(request):
-                neutron_data = dict([(key, data[key]) for key in
-                                     quotas.NEUTRON_QUOTA_FIELDS])
-                api.neutron.tenant_quota_update(request,
-                                                project_id,
-                                                **neutron_data)
-        except Exception:
-            exceptions.handle(request, _('Unable to set project quotas.'))
         return True
 
 
@@ -496,16 +472,14 @@ class UpdateProject(workflows.Workflow):
     failure_message = _('Unable to modify project "%s".')
     success_url = "horizon:admin:projects:index"
     default_steps = (UpdateProjectInfo,
-                     UpdateProjectMembers,
-                     UpdateProjectQuota)
+                     UpdateProjectMembers)
 
     def __init__(self, request=None, context_seed=None, entry_point=None,
                  *args, **kwargs):
         if PROJECT_GROUP_ENABLED:
             self.default_steps = (UpdateProjectInfo,
                                   UpdateProjectMembers,
-                                  UpdateProjectGroups,
-                                  UpdateProjectQuota)
+                                  UpdateProjectGroups)
 
         super(UpdateProject, self).__init__(request=request,
                                             context_seed=context_seed,
@@ -704,31 +678,4 @@ class UpdateProject(workflows.Workflow):
                                              % groups_to_modify))
                 return True
 
-        # update the project quota
-        nova_data = dict(
-            [(key, data[key]) for key in quotas.NOVA_QUOTA_FIELDS])
-        try:
-            nova.tenant_quota_update(request,
-                                     project_id,
-                                     **nova_data)
-
-            if base.is_service_enabled(request, 'volume'):
-                cinder_data = dict([(key, data[key]) for key in
-                                    quotas.CINDER_QUOTA_FIELDS])
-                cinder.tenant_quota_update(request,
-                                           project_id,
-                                           **cinder_data)
-
-            if api.base.is_service_enabled(request, 'network') and \
-                    api.neutron.is_quotas_extension_supported(request):
-                neutron_data = dict([(key, data[key]) for key in
-                                     quotas.NEUTRON_QUOTA_FIELDS])
-                api.neutron.tenant_quota_update(request,
-                                                project_id,
-                                                **neutron_data)
-            return True
-        except Exception:
-            exceptions.handle(request, _('Modified project information and '
-                                         'members, but unable to modify '
-                                         'project quotas.'))
             return True
