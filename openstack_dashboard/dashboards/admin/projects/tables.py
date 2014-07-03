@@ -119,8 +119,7 @@ class TenantsTable(tables.DataTable):
     class Meta:
         name = "tenants"
         verbose_name = _("Projects")
-        row_actions = (ViewMembersLink, ViewGroupsLink, UpdateProject,
-                       UsageLink, ModifyQuotas, DeleteTenantsAction)
+        row_actions = (ViewMembersLink, ViewGroupsLink, UpdateProject,DeleteTenantsAction,)
         table_actions = (TenantFilterAction, CreateProject,
                          DeleteTenantsAction)
         pagination_param = "tenant_marker"
