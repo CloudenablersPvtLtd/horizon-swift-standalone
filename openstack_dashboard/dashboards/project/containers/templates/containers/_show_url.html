@@ -1,0 +1,23 @@
+{% extends "horizon/common/_modal.html" %}
+{% load i18n %}
+{% load url from future %}
+
+{% block modal-header %}{% trans "Temporary Url to access - " %}{{ object_path }}{% endblock %}
+
+{% block modal-body %}
+<div class="info row-fluid detail">
+  <dl>
+    <dt>{% trans "Container Name" %}</dt>
+    <dd>{{ container_name }}</dd>
+    <dt>{% trans "Object Name" %}</dt>
+    <dd>{{ object_path }}</dd>
+    <dt>{% trans "Temporary Url" %}</dt>
+    <dd>{{ request.session.temp_url }}</dd>
+  </dl>
+
+</div>
+{% endblock %}
+
+{% block modal-footer %}
+  <a href="{% url 'horizon:project:containers:index' container_name|add:'/' %}" class="btn secondary cancel close">{% trans "Close" %}</a>
+{% endblock %}

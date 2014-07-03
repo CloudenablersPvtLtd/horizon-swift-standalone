@@ -54,6 +54,14 @@ urlpatterns = patterns(VIEW_MOD,
         views.CopyView.as_view(),
         name='object_copy'),
 
+    url(r'^(?P<container_name>[^/]+)/(?P<object_path>.+)/create_url$',
+        views.CreateUrlView.as_view(),
+        name='create_url'),
+
+    url(r'^(?P<container_name>[^/]+)/(?P<object_path>.+)/show_url$',
+        views.ShowUrlView.as_view(),
+        name='show_url'),
+
     url(r'^(?P<container_name>[^/]+)/(?P<object_path>.+)/download$',
         'object_download',
         name='object_download'),

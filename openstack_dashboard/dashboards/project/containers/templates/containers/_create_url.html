@@ -1,0 +1,27 @@
+{% extends "horizon/common/_modal_form.html" %}
+{% load i18n %}
+{% load url from future %}
+
+{% block form_id %}create_url_form{% endblock %}
+{% block form_action %}{% url 'horizon:project:containers:create_url' container_name object_path %}{% endblock %}
+
+{% block modal-header %}{% trans "Temporary Url:" %} {{ object_path }} {% endblock %}
+
+{% block modal-body %}
+<div class="left">
+    <fieldset>
+        {% include "horizon/common/_form_fields.html" %}
+    </fieldset>
+</div>
+<div class="right">
+    <h3>{% trans "Description" %}:</h3>
+    <p>{% trans "Generate temporary Url to access container Object" %} <b>{{ object_path }}</b></p>
+</div>
+{% endblock %}
+
+
+{% block modal-footer %}
+  <input class="btn btn-primary pull-right" type="submit" value="{% trans "Generate Url" %}" />
+  <a href="{% url 'horizon:project:containers:index' %}" class="btn secondary cancel close">{% trans "Close" %}</a>
+{% endblock %}
+

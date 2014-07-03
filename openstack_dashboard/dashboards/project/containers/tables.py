@@ -159,6 +159,21 @@ class DeleteObject(tables.DeleteAction):
         api.swift.swift_delete_object(request, container_name, obj_id)
 
 
+class CreateUrlObject(tables.LinkAction):
+    name = "create_url"
+    verbose_name = _("Generate Url")
+    url = "horizon:project:containers:create_url"
+    classes = ("ajax-modal", "btn-copy")
+    data_type_singular = _("Object")
+    data_type_plural = _("Objects")
+    allowed_data_types = ("objects",)
+
+    def get_link_url(self, obj):
+        container_name = self.table.kwargs['container_name']
+        return reverse(self.url, args=(http.urlquote(container_name),
+                                       http.urlquote(obj.name)))
+
+
 class DeleteMultipleObjects(DeleteObject):
     name = "delete_multiple_objects"
     data_type_singular = _("Object")
@@ -250,7 +265,7 @@ class ObjectsTable(tables.DataTable):
         verbose_name = _("Objects")
         table_actions = (ObjectFilterAction, UploadObject,
                          DeleteMultipleObjects)
-        row_actions = (DownloadObject, CopyObject, ViewObject, DeleteObject)
+        row_actions = (DownloadObject, CopyObject, ViewObject, DeleteObject, CreateUrlObject)
         data_types = ("subfolders", "objects")
         browser_table = "content"
         footer = False

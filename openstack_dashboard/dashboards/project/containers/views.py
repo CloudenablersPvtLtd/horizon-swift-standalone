@@ -269,3 +269,28 @@ class ObjectDetailView(forms.ModalFormMixin, generic.TemplateView):
         context = super(ObjectDetailView, self).get_context_data(**kwargs)
         context['object'] = self.get_object()
         return context
+
+
+class CreateUrlView(forms.ModalFormView):
+    template_name = 'project/containers/create_url.html'
+    form_class = project_forms.CreateUrlObject
+    success_url = "horizon:project:containers:show_url"
+
+    def get_success_url(self):
+        container_name = self.request.POST['container_name']
+        object_path = self.kwargs["object_path"]
+        return reverse(self.success_url,args=(container_name, object_path))
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateUrlView, self).get_context_data(**kwargs)
+        context['container_name'] = self.kwargs["container_name"]
+        context['object_path'] = self.kwargs["object_path"]
+        return context
+
+    def get_initial(self):
+        return {"container_name": self.kwargs["container_name"],
+                "object_name": self.kwargs["object_path"],
+                }
+
+class ShowUrlView(generic.TemplateView):
+    template_name = 'project/containers/show_url.html'

@@ -21,10 +21,15 @@
 from django.core.urlresolvers import reverse  # noqa
 from django.core import validators
 from django.utils.translation import ugettext_lazy as _  # noqa
+from django import http,shortcuts
 
 from horizon import exceptions
 from horizon import forms
 from horizon import messages
+
+import hmac
+from hashlib import sha1
+from time import time
 
 from openstack_dashboard import api
 from openstack_dashboard.dashboards.project.containers import tables
@@ -146,3 +151,42 @@ class CopyObject(forms.SelfHandlingForm):
             exceptions.handle(request,
                               _("Unable to copy object."),
                               redirect=redirect)
+
+
+
+class CreateUrlObject(forms.SelfHandlingForm):
+    expiryTime = forms.IntegerField(required=True,
+                             label=_("TempUrl Duration(Sec)"))
+    secretKey = forms.CharField(widget=forms.PasswordInput,
+                            max_length=30,
+                            label=_("Account-Meta-Temp-URL-Key"),
+                            required=True,)
+    container_name = forms.CharField(widget=forms.HiddenInput())
+    object_name = forms.CharField(widget=forms.HiddenInput())
+
+
+    def handle(self, request, data):
+        try:
+            index = "horizon:project:containers:index"
+            object_name = data['object_name']
+            request.session['temp_url'] = self.generateTempUrl(request,data)
+            messages.success(request, _("Successfully generated tempUrl for swift object: %s " %object_name))
+            return True
+        except Exception:
+            exceptions.handle(request, _('Unable to generate tempUrl for object: %s' %object_name))
+
+    def generateTempUrl(self, request, data):
+        # Create a TempUrl for container object
+        method = 'GET'
+        container_name = data['container_name']
+        object_name = data['object_name']
+        expires = int(time() + int(data['expiryTime']))
+        key = str(data['secretKey'])
+        swift_endpoint = api.base.url_for(request,'object-store', endpoint_type='publicURL').split('/')
+        host = '/'.join(swift_endpoint[0:3])
+        path = "/{0:s}/{1:s}/{2:s}/{3:s}".format(swift_endpoint[3], swift_endpoint[4], container_name, object_name)
+        hmac_body = '%s\n%s\n%s' % (method, expires, path)
+        signature = hmac.new(key, hmac_body, sha1).hexdigest()
+        s = '{host}{path}?temp_url_sig={sig}&temp_url_expires={expires}'
+        tempUrl = s.format(host=host, path=path, sig=signature, expires=expires)
+        return tempUrl
